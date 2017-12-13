@@ -7,5 +7,7 @@
   <button (click)="undo()" type="button" [disabled]="!isUndoEnable">Desfazer</button>
   <button (click)="redo()" type="button" [disabled]="!isRedoEnable">Refazer</button>
 
+  <button (click)="save()" type="button">Salvar</button>
+
   <canvas id="c" width="500" height="500" style="border: 1px solid"></canvas>
 </div>

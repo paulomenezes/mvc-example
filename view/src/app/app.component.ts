@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Http } from '@angular/http';
 import CanvasCareTaker from './memento/CanvasCareTaker';
 
 declare var fabric: any;
@@ -15,7 +16,7 @@ export class AppComponent implements OnInit {
   isUndoEnable: boolean = false;
   isRedoEnable: boolean = false;
 
-  constructor() {
+  constructor(private http: Http) {
     this.canvasCareTaker = new CanvasCareTaker();
   }
 
@@ -87,5 +88,13 @@ export class AppComponent implements OnInit {
 
   random(min: number, max: number) {
     return Math.floor(Math.random() * max) + min;
+  }
+
+  async save() {
+    try {
+      await this.http.post('http://localhost:8085/canvas', this.canvas.toJSON()).toPromise();
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
