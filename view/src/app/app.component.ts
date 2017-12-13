@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import Canvas from './memento/Canvas';
 import CanvasCareTaker from './memento/CanvasCareTaker';
+
 declare var fabric: any;
 
 @Component({
@@ -10,29 +10,27 @@ declare var fabric: any;
 })
 export class AppComponent implements OnInit {
   canvas: any;
-  canvasState: Canvas;
-  careTaker: CanvasCareTaker;
+  canvasCareTaker: CanvasCareTaker;
 
   isUndoEnable: boolean = false;
   isRedoEnable: boolean = false;
 
   constructor() {
-    this.careTaker = new CanvasCareTaker();
+    this.canvasCareTaker = new CanvasCareTaker();
   }
 
   ngOnInit() {
     this.canvas = new fabric.Canvas('c');
-    this.canvasState = this.canvas.toJSON();
-    this.careTaker.addMemento(this.canvasState);
+    this.saveState();
 
-    this.canvas.on('object:modified', this.saveState.bind(this));
+    this.canvas.on('object:modified', () => {
+      this.saveState();
+      this.enableButtons();
+    });
   }
 
-  saveState(evt) {
-    this.canvasState = this.canvas.toJSON();
-    this.careTaker.addMemento(this.canvasState);
-
-    this.enableButtons();
+  saveState(evt?: any) {
+    this.canvasCareTaker.addMemento(this.canvas.toJSON());
   }
 
   addShape(type: string) {
@@ -52,29 +50,29 @@ export class AppComponent implements OnInit {
       });
     } else {
       shape = new fabric.Circle({
+        ...pos,
         radius: 10,
-        fill: 'blue',
-        ...pos
+        fill: 'blue'
       });
     }
 
     this.canvas.add(shape);
     this.saveState();
-  }
-
-  undo() {
-    this.canvas.clear();
-    const state = this.careTaker.getLastState();
-    this.canvas.loadFromJSON(state, () => {
-      this.canvas.renderAll();
-    });
-
     this.enableButtons();
   }
 
+  undo() {
+    const state = this.canvasCareTaker.getLastState();
+    this.loadFromJSON(state);
+  }
+
   redo() {
+    const state = this.canvasCareTaker.getNewerState();
+    this.loadFromJSON(state);
+  }
+
+  loadFromJSON(state) {
     this.canvas.clear();
-    const state = this.careTaker.getNewerState();
     this.canvas.loadFromJSON(state, () => {
       this.canvas.renderAll();
     });
@@ -83,8 +81,8 @@ export class AppComponent implements OnInit {
   }
 
   enableButtons() {
-    this.isUndoEnable = this.careTaker.isUndoEnable();
-    this.isRedoEnable = this.careTaker.isRedoEnable();
+    this.isUndoEnable = this.canvasCareTaker.isUndoEnable();
+    this.isRedoEnable = this.canvasCareTaker.isRedoEnable();
   }
 
   random(min: number, max: number) {
