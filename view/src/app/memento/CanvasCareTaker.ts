@@ -2,7 +2,7 @@ import CanvasMemento from './CanvasMemento';
 
 export default class CanvasCareTaker {
   private index: number = 0;
-  protected states: CanvasMemento[];
+  private states: CanvasMemento[];
 
   constructor() {
     this.states = [];
@@ -11,26 +11,20 @@ export default class CanvasCareTaker {
   addMemento(memento: CanvasMemento) {
     this.states.push(memento);
     this.index++;
-    console.log('Saved State', this.states, this.index);
   }
 
   getLastState() {
+    if (this.index === this.states.length) {
+      this.index--;
+    }
+
     this.index--;
-    console.log('Get Last State', this.index);
-    const state = this.states[this.index];
-    //this.index--;
-    return state;
+    return this.states[this.index];
   }
 
   getNewerState() {
-    if (this.index === 0) {
-      this.index = 1;
-    }
-
-    console.log('Get Newer State', this.index);
-    const state = this.states[this.index];
     this.index++;
-    return state;
+    return this.states[this.index];
   }
 
   isUndoEnable() {
@@ -38,7 +32,6 @@ export default class CanvasCareTaker {
   }
 
   isRedoEnable() {
-    console.log(this.index, this.states.length);
-    return this.index < this.states.length;
+    return this.index < this.states.length - 1;
   }
 }

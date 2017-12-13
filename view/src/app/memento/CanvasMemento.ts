@@ -1,7 +1,7 @@
 import Canvas from './Canvas';
 
 export default class CanvasMemento {
-  protected canvas: Canvas;
+  private canvas: Canvas;
 
   constructor(canvas: Canvas) {
     this.canvas = canvas;
